@@ -1,0 +1,24 @@
+Move to an adjacent directory
+
+Author: tar80 <tar80master@google.com>
+License: MIT License
+Repository: https://github.com/tar80/ppm-adjacentdir
+===============================================================================
+
+カレントディレクトリと同じ階層にある隣接するディレクトリ、または同じ拡張子の
+仮想ディレクトリへ移動するためのキーバインドを設定します。
+
+===============================================================================
+構成ファイルの説明
+
+	script\xxx\moveDirecotry.js	ディレクトリ移動を実行するスクリプト
+		参照:
+		http://anago.5ch.net/test/read.cgi/software/1264624581/219
+		http://hoehoetukasa.blogspot.com/2014/01/ppx_29.html
+
+===============================================================================
+デフォルトキー設定
+
+PPc
+	CTRL+SHIFT+UP	前に隣接するディレクトリへ移動
+	CTRL+SHIFT+DOWN	後ろに隣接するディレクトリへ移動
