@@ -14,21 +14,24 @@ const errors = (method) => {
   PPx.Quit(-1);
 };
 
-const quitMsg = (msg) => {
+const quitLinemsg = (msg) => {
   PPx.SetPopLineMessage(`!"${msg}`);
   PPx.Quit(1);
 };
 
 const g_tempfile = PPx.Extract('%*temp()\\movedir');
-const g_dest = (() => {
-  if (PPx.Arguments.Length === 0) {
+const sort_order = ((arg = PPx.Arguments()) => {
+  if (arg.length === 0) {
     errors('arg');
   }
 
-  return PPx.Arguments(0) | 0;
+  return {
+    0: {l: -1, r: 1, msg: 'top'},
+    1: {l: 1, r: -1, msg: 'bottom'}
+  }[arg.Item(0)];
 })();
 
-const g_wd = (() => {
+const parent_dir = (() => {
   let wd = {};
   PPx.Extract('%FDVN').replace(/^(.*)\\((?:.*\.)?(?!$)(.*))/, (p0, p1, p2, p3) => {
     wd = {
@@ -41,73 +44,66 @@ const g_wd = (() => {
     return;
   });
 
-  wd.pwd === undefined && quitMsg('<<Root>>');
+  wd.pwd === undefined && quitLinemsg('<<Root>>');
   return wd;
 })();
 
-{
-  const whereIs = (mask) => {
+const fso = PPx.CreateObject('Scripting.FileSystemObject');
+const candidates = (() => {
+  const paths = [];
+  const sortPath = (mask) => {
     PPx.Execute(
-      `*whereis -path:"${g_wd.pwd}%\\" -mask:"${mask}" -dir:on -subdir:off -listfile:${g_tempfile} -name`
+      `*whereis -path:"${parent_dir.pwd}\\" -mask:"${mask}" -dir:on -subdir:off -listfile:${g_tempfile} -name`
     );
+    const readFile = fso.OpenTextFile(g_tempfile, 1, false, -1);
+
+    readFile.AtEndOfLine && quitLinemsg('Empty');
+
+    while (!readFile.AtEndOfStream) {
+      paths.push(readFile.ReadLine());
+    }
+
+    readFile.Close();
+
+    if (paths.length === 1) {
+      quitLinemsg('Not found');
+    }
+
+    return paths.sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? sort_order.l : sort_order.r));
   };
 
-  switch (g_wd.type) {
+  switch (parent_dir.type) {
     case 0:
-      quitMsg('DirectoryType: 0, unknown');
+      quitLinemsg('DirectoryType: 0, unknown');
       break;
 
     // Create a list in consideration of attributes
     case 1:
-      whereIs('a:d+s-');
-      break;
+      return sortPath('a:d+s-');
 
     // Create a list in consideration of the extension
     case 4:
     case 63:
     case 64:
     case 96:
-      whereIs(g_wd.ext);
-      g_wd.path = g_wd.path.slice(0, -1);
-      break;
+      parent_dir.path = parent_dir.path.slice(0, -1);
+      return sortPath(parent_dir.ext);
 
     default:
-      quitMsg(`DirectoryType : ${g_wd.type}, Not supported`);
+      quitLinemsg(`DirectoryType : ${parent_dir.type}, Not supported`);
       break;
   }
+})();
+
+// Get the target directory name
+const i = candidates.indexOf(parent_dir.path);
+const target_path = candidates[Math.max(i - 1, 0)];
+
+// Display the message at the end
+if (candidates[i - 2] === undefined) {
+  PPx.SetPopLineMessage(`!"<${sort_order.msg}>`);
 }
 
-const moveDir = (valA, valB, message) => {
-  const fso = PPx.CreateObject('Scripting.FileSystemObject');
-  const readFile = fso.OpenTextFile(g_tempfile, 1, false, -1);
-  const dirList = [];
-
-  readFile.AtEndOfLine && quitMsg('Empty');
-
-  while (!readFile.AtEndOfStream) {
-    dirList.push(readFile.ReadLine());
-  }
-
-  readFile.Close();
-
-  if (dirList.length === 1) {
-    quitMsg('Not found');
-  }
-
-  dirList.sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? valA : valB));
-
-  // Get the target directory name
-  const i = dirList.indexOf(g_wd.path);
-  const nextDir = dirList[Math.max(i - 1, 0)];
-
-  // Display the message at the end
-  if (dirList[i - 2] === undefined) {
-    PPx.SetPopLineMessage(`!"<${message}>`);
-  }
-
-  if (dirList[i - 1] !== undefined) {
-    PPx.Execute(`*jumppath "${nextDir}"`);
-  }
-};
-
-g_dest === 0 ? moveDir(-1, 1, 'Top') : moveDir(1, -1, 'Bottom');
+if (candidates[i - 1] !== undefined) {
+  PPx.Execute(`*jumppath "${target_path}"`);
+}

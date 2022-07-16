@@ -1,16 +1,18 @@
 ﻿PPM_PLUGIN_NAME=ppm-adjacentdir
 
 #Plugin version
-VERSION=1.0
+VERSION=1.1
 
 #Requires ppm version
 PPM_VERSION=0.5
+PPMCV8_VERSION=0.01
 
 #Requires PPx version
 PPX_VERSION=185
 
 #Requires PPx script module version
 SCRIPT_VERSION=18
+CV8_VERSION=0
 
 #Requires external executables. Separated dy commas
 EXECUTABLES=
