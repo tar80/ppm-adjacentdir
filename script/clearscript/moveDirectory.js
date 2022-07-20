@@ -18,7 +18,7 @@ const quitLinemsg = (msg) => {
   PPx.Quit(1);
 };
 
-const sort_order = ((arg = PPx.Arguments()) => {
+const sort_order = ((arg = PPx.Arguments) => {
   if (arg.length === 0) {
     error();
     PPx.Quit(-1);

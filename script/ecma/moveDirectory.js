@@ -20,7 +20,7 @@ const quitLinemsg = (msg) => {
 };
 
 const g_tempfile = PPx.Extract('%*temp()\\movedir');
-const sort_order = ((arg = PPx.Arguments()) => {
+const sort_order = ((arg = PPx.Arguments) => {
   if (arg.length === 0) {
     errors('arg');
   }

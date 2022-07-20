@@ -27,7 +27,7 @@ var sort_order = (function (arg) {
     0: {l: -1, r: 1, msg: 'top'},
     1: {l: 1, r: -1, msg: 'bottom'}
   }[arg.Item(0)];
-})(PPx.Arguments());
+})(PPx.Arguments);
 
 var parent_dir = (function () {
   var wd = {};
