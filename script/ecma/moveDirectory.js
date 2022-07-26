@@ -66,16 +66,16 @@ const candidates = (() => {
     readFile.Close();
 
     if (paths.length === 1) {
-      quitLinemsg('Not found');
+      quitLinemsg('No adjacent directories');
     }
 
     return paths.sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? sort_order.l : sort_order.r));
   };
 
   switch (parent_dir.type) {
-    case 0:
-      quitLinemsg('DirectoryType: 0, unknown');
-      break;
+//     case 0:
+//       quitLinemsg('DirectoryType: 0, unknown');
+//       break;
 
     // Create a list in consideration of attributes
     case 1:

@@ -60,7 +60,7 @@ var candidates = (function () {
     }
 
     if (paths.length === 1) {
-      quitLinemsg('Not found');
+      quitLinemsg('No adjacent directories');
     }
 
     return paths.sort(function (a, b) {
@@ -69,9 +69,9 @@ var candidates = (function () {
   };
 
   switch (parent_dir.type) {
-    case 0:
-      quitLinemsg('DirectoryType: 0, unknown');
-      break;
+//     case 0:
+//       quitLinemsg('DirectoryType: 0, unknown');
+//       break;
 
     // Create a list in consideration of attributes
     case 1:

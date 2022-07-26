@@ -79,7 +79,7 @@ const candidates = (() => {
 })();
 
 if (candidates.length <= 1) {
-  quitLinemsg('Not found');
+  quitLinemsg('No adjacent directories');
 }
 
 // Get the target directory name
