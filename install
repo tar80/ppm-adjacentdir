@@ -1,7 +1,7 @@
 ﻿PPM_PLUGIN_NAME=ppm-adjacentdir
 
 #Plugin version
-VERSION=1.2
+VERSION=1.3
 
 #Requires ppm version
 PPM_VERSION=0.8
@@ -10,14 +10,14 @@ PPMCV8_VERSION=0.01
 #Requires PPx version
 PPX_VERSION=18506
 
-#Requires PPx script module version
+#Requires PPx Script Module version
 SCRIPT_VERSION=18
 CV8_VERSION=0
 
 #Requires external executables. Separated dy commas
 EXECUTABLES=
 
-#Requires PPx-modules. Separated dy commas
+#Requires PPx Modules and Common Archivers Library. Separated dy commas
 MODULES=
 
 #Comma separated dependent plugins. Just a note
@@ -29,10 +29,10 @@ CODETYPE_PERMISSION=1
 #ScriptType permisson. 0:No restriction | 1:JS9(5.7) | 2:JS9(5.8) | 3:JS9(ES5) | 4:Chakra(ES6)
 SCRIPTTYPE_PERMISSION=0
 
-#To copy files in the sheet directory. true | false
+#To copy files in the Sheet directory. true | false
 COPY_FLAG=false
 
-#TO copy files in the userscript directory. true | false
+#To copy files in the Userscript directory. true | false
 COPY_SCRIPT=false
 
 #Copy by specifying the directory-name
