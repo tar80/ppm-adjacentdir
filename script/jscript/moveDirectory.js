@@ -69,7 +69,7 @@ var candidates = (function () {
   };
 
   switch (parent_dir.type) {
-//     case 0:
+    case 0:
 //       quitLinemsg('DirectoryType: 0, unknown');
 //       break;
 

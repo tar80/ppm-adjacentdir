@@ -60,7 +60,7 @@ const candidates = (() => {
 
   switch (parent_dir.type) {
     case 0:
-      return quitLinemsg('DirectoryType: 0, unknown');
+      // return quitLinemsg('DirectoryType: 0, unknown');
 
     // Create a list in consideration of attributes
     case 1:
