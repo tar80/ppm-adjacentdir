@@ -1,7 +1,6 @@
 type Direction = '0' | '1';
 export type SortDetail = {l: number; r: number; msg: string};
 const sortDetail = (direction: string, top: string, bottom: string): SortDetail => {
-  console.log(/^[^01]$/.test(direction))
   if (!/^[01]$/.test(direction)) {
     direction = '1';
   }

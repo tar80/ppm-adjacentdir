@@ -1,7 +1,7 @@
 ﻿PPM_PLUGIN_NAME=ppm-adjacentdir
 
 #Plugin version
-VERSION=1.4.0
+VERSION=1.4.1
 
 #Requires ppm version
 PPM_VERSION=0.93

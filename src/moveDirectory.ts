@@ -2,6 +2,7 @@
  * @arg 0 {number} - Direction of move. "0":previous | "1":next
  */
 
+import '@ppmdev/polyfills/arrayIndexOf.ts';
 import {isError} from '@ppmdev/modules/guard.ts';
 import {readLines} from '@ppmdev/modules/io.ts';
 import {tmp, useLanguage} from '@ppmdev/modules/data.ts';
