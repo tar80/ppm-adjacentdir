@@ -26,8 +26,8 @@ const sort_order = ((arg = PPx.Arguments) => {
   }
 
   return {
-    0: {l: -1, r: 1, msg: 'top'},
-    1: {l: 1, r: -1, msg: 'bottom'}
+    0: {l: -1, r: 1, msg: 'Top'},
+    1: {l: 1, r: -1, msg: 'Bottom'}
   }[arg.Item(0)];
 })();
 

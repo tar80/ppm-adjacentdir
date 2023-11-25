@@ -1,0 +1,32 @@
+{
+  "name": "@ppmdev/ppm-adjacentdir",
+  "version": "1.4.0",
+  "description": "plugin for ppm",
+  "directories": {
+    "doc": "doc"
+  },
+  "type": "module",
+  "scripts": {
+    "ts": "tsc --noEmit true --skipLibCheck true",
+    "deno": "deno run --no-check --allow-all --unstable",
+    "build": "ppmbuild",
+    "build:prod": "set NODE_ENV=Production&&ppmbuild -- src",
+    "version": "ppmversion",
+    "test": "jest"
+  },
+  "jest": {
+    "verbose": true,
+    "coverageProvider": "v8",
+    "preset": "ts-jest",
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.ts",
+      "**/?(*.)+test.ts"
+    ]
+  },
+  "author": "tar80 <tar80master@gmail.com> (https://tar80.github.io/pages-pca/)",
+  "license": "MIT"
+}

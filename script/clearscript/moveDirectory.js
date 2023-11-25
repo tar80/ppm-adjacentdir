@@ -25,8 +25,8 @@ const sort_order = ((arg = PPx.Arguments) => {
   }
 
   return {
-    '0': {l: -1, r: 1, msg: 'top'},
-    '1': {l: 1, r: -1, msg: 'bottom'}
+    '0': {l: -1, r: 1, msg: 'Top'},
+    '1': {l: 1, r: -1, msg: 'Bottom'}
   }[arg.Item(0)];
 })();
 
@@ -79,7 +79,7 @@ const candidates = (() => {
 })();
 
 if (candidates.length <= 1) {
-  quitLinemsg('No adjacent directories');
+  quitLinemsg('No adjacent directory');
 }
 
 // Get the target directory name
