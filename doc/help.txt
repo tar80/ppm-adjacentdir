@@ -11,7 +11,7 @@ Repository: https://github.com/tar80/ppm-adjacentdir
 ===============================================================================
 構成ファイルの説明
 
-	script\xxx\moveDirecotry.js	ディレクトリ移動を実行するスクリプト
+	script\xxx\moveDirecotry.stay.js	ディレクトリ移動を実行
 		参照:
 		http://anago.5ch.net/test/read.cgi/software/1264624581/219
 		http://hoehoetukasa.blogspot.com/2014/01/ppx_29.html
