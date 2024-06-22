@@ -50,14 +50,14 @@ const ppx_resume = (direction = '1', debounce = '5000', staymode = true): void =
 
   if (!target) {
     PPx.linemessage(`!"${ROOT_MSG}`);
-    PPx.Quit(1);
+    return;
   }
 
   const items = candidates(target, sort, staymode);
 
   if (typeof items === 'string') {
     PPx.linemessage(`!"${items}`);
-    PPx.Quit(1);
+    return;
   }
 
   const num = items.indexOf(target.path);
