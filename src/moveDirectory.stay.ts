@@ -10,7 +10,7 @@ import {isError} from '@ppmdev/modules/guard.ts';
 import {readLines} from '@ppmdev/modules/io.ts';
 import {tmp, useLanguage} from '@ppmdev/modules/data.ts';
 import {validArgs} from '@ppmdev/modules/argument.ts';
-import {discardInstance, ppx_Discard} from '@ppmdev/modules/staymode.ts';
+import {atDebounce} from '@ppmdev/modules/staymode.ts';
 import {langMoveDirectory} from './mod/language.ts';
 import {type SortDetail, type PathDetail, core} from './mod/core.ts';
 
@@ -21,22 +21,25 @@ const lang = langMoveDirectory[useLanguage()];
 
 type PathData = {lines: string[]; nl: NlCodes};
 type Cache = {wd: string; ext: string; data: PathData};
-var cache = {} as Cache;
+let cache = {} as Cache;
 
 const main = () => {
   const [direction, debounce, debug] = validArgs();
   const isStaymode = hasDebounceTime(debounce);
 
-
   if (!!isStaymode) {
     PPx.StayMode = 2;
     debug === 'DEBUG' && PPx.linemessage(`[DEBUG] start ${PPx.StayMode}`);
-    discardInstance(debounce, debug);
+    atDebounce.hold(debounce, debug);
   }
 
   ppx_resume(direction, '0', isStaymode);
 };
 
+/**
+ * Whether to enable StayMode
+ * @return boolean
+ */
 const hasDebounceTime = (debounce: string): boolean => {
   const n = Number(debounce);
 
@@ -72,6 +75,7 @@ const ppx_resume = (direction = '1', debounce = '5000', staymode = true): void =
     PPx.Execute(`*jumppath "${adjacentDir}"`);
   }
 
+  // init of debounce time
   if (!!staymode) {
     const propName = `ppm_sm${PPx.StayMode}`;
     PPx.Execute(`*string u,${propName}=${debounce}`);
@@ -120,6 +124,10 @@ const sortItems = (path: PathDetail, sort: SortDetail, mask: string, staymode: b
   return data.lines.sort((a: string, b: string): number => (a.toLowerCase() < b.toLowerCase() ? sort.l : sort.r));
 };
 
+/**
+ * Get list of adjacent directories
+ * @return Error message or sorted directory paths
+ */
 const candidates = (path: PathDetail, sort: SortDetail, staymode: boolean): string | string[] => {
   switch (path.type) {
     case 0:
@@ -145,6 +153,10 @@ const candidates = (path: PathDetail, sort: SortDetail, staymode: boolean): stri
   }
 };
 
+/**
+ * Get the path to move
+ * @return path
+ */
 const getAdjacentPath = (num: number, items: string[], pwd: string, namespace?: string): string => {
   let path = items[Math.max(num - 1, 0)];
 

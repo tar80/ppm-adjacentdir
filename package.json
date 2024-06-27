@@ -1,6 +1,6 @@
 {
   "name": "@ppmdev/ppm-adjacentdir",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "plugin for ppm",
   "directories": {
     "doc": "doc"
