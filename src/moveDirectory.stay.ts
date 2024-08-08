@@ -14,45 +14,33 @@ import {atDebounce} from '@ppmdev/modules/staymode.ts';
 import {langMoveDirectory} from './mod/language.ts';
 import {type SortDetail, type PathDetail, core} from './mod/core.ts';
 
-const ROOT_MSG = '<<Root>>';
-const TOP_MSG = '<Top>';
-const BOTTOM_MSG = '<Bottom>';
+const MSG = {root: '<<root>>', top: '<top>', bottom: '<bottom>'};
 const lang = langMoveDirectory[useLanguage()];
 
 type PathData = {lines: string[]; nl: NlCodes};
-type Cache = {wd: string; ext: string; data: PathData};
-let cache = {} as Cache;
+let cache = {wd: '', ext: '', data: {} as PathData};
 
 const main = () => {
-  const [direction, debounce, debug] = validArgs();
+  const [direction, debounce, debugMode] = validArgs();
   const isStaymode = hasDebounceTime(debounce);
 
   if (!!isStaymode) {
     PPx.StayMode = 2;
-    debug === 'DEBUG' && PPx.linemessage(`[DEBUG] start ${PPx.StayMode}`);
-    atDebounce.hold(debounce, debug);
+    debugMode === 'DEBUG' && PPx.linemessage(`[DEBUG] start ${PPx.StayMode}`);
+    atDebounce.hold(debounce, debugMode);
   }
 
   ppx_resume(direction, '0', isStaymode);
 };
 
-/**
- * Whether to enable StayMode
- * @return boolean
- */
-const hasDebounceTime = (debounce: string): boolean => {
-  const n = Number(debounce);
-
-  return !isNaN(n) && n >= 1000;
-};
-
+const ppx_finally = (): void => PPx.Echo('[WARN] instance remain moveDirectory.stay.js');
 const ppx_resume = (direction = '1', debounce = '5000', staymode = true): void => {
-  const sort = core.sortDetail(Number(direction), TOP_MSG, BOTTOM_MSG);
+  const sort = core.sortDetail(Number(direction), MSG.top, MSG.bottom);
   const [pwd, namespace] = getPwd();
   const target = core.pathDetail(pwd);
 
   if (!target) {
-    PPx.linemessage(`!"${ROOT_MSG}`);
+    PPx.linemessage(`!"${MSG.root}`);
     return;
   }
 
@@ -80,6 +68,16 @@ const ppx_resume = (direction = '1', debounce = '5000', staymode = true): void =
     const propName = `ppm_sm${PPx.StayMode}`;
     PPx.Execute(`*string u,${propName}=${debounce}`);
   }
+};
+
+/**
+ * Whether to enable StayMode
+ * @return boolean
+ */
+const hasDebounceTime = (debounce: string): boolean => {
+  const n = Number(debounce);
+
+  return !isNaN(n) && n >= 1000;
 };
 
 /**
