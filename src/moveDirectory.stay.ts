@@ -5,15 +5,16 @@
  */
 
 import '@ppmdev/polyfills/arrayIndexOf.ts';
-import type {NlCodes} from '@ppmdev/modules/types.ts';
+import {validArgs} from '@ppmdev/modules/argument.ts';
+import {tmp, useLanguage} from '@ppmdev/modules/data.ts';
 import {isError} from '@ppmdev/modules/guard.ts';
 import {readLines} from '@ppmdev/modules/io.ts';
-import {tmp, useLanguage} from '@ppmdev/modules/data.ts';
-import {validArgs} from '@ppmdev/modules/argument.ts';
 import {atDebounce} from '@ppmdev/modules/staymode.ts';
+import type {NlCodes} from '@ppmdev/modules/types.ts';
+import {type PathDetail, type SortDetail, core} from './mod/core.ts';
 import {langMoveDirectory} from './mod/language.ts';
-import {type SortDetail, type PathDetail, core} from './mod/core.ts';
 
+const STAYMODE_ID = 80140;
 const MSG = {root: '<<root>>', top: '<top>', bottom: '<bottom>'};
 const lang = langMoveDirectory[useLanguage()];
 
@@ -24,9 +25,9 @@ const main = () => {
   const [direction, debounce, debugMode] = validArgs();
   const isStaymode = hasDebounceTime(debounce);
 
-  if (!!isStaymode) {
-    PPx.StayMode = 2;
-    debugMode === 'DEBUG' && PPx.linemessage(`[DEBUG] start ${PPx.StayMode}`);
+  if (isStaymode) {
+    PPx.StayMode = STAYMODE_ID;
+    debugMode === 'DEBUG' && PPx.linemessage(`[DEBUG] start ${STAYMODE_ID}`);
     atDebounce.hold(debounce, debugMode);
   }
 
@@ -59,13 +60,13 @@ const ppx_resume = (direction = '1', debounce = '5000', staymode = true): void =
     PPx.linemessage(`!"${sort.msg}`);
   }
 
-  if (!!items[num - 1]) {
+  if (items[num - 1]) {
     PPx.Execute(`*jumppath "${adjacentDir}"`);
   }
 
   // init of debounce time
-  if (!!staymode) {
-    const propName = `ppm_sm${PPx.StayMode}`;
+  if (staymode) {
+    const propName = `ppm_sm${STAYMODE_ID}`;
     PPx.Execute(`*string u,${propName}=${debounce}`);
   }
 };
@@ -77,7 +78,7 @@ const ppx_resume = (direction = '1', debounce = '5000', staymode = true): void =
 const hasDebounceTime = (debounce: string): boolean => {
   const n = Number(debounce);
 
-  return !isNaN(n) && n >= 1000;
+  return !Number.isNaN(n) && n >= 1000;
 };
 
 /**
