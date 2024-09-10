@@ -66,7 +66,7 @@ const ppx_resume = (direction = '1', debounce = '5000', staymode = true): void =
 
   // init of debounce time
   if (staymode) {
-    const propName = `ppm_sm${STAYMODE_ID}`;
+    const propName = `ppm_staymode${STAYMODE_ID}`;
     PPx.Execute(`*string u,${propName}=${debounce}`);
   }
 };
