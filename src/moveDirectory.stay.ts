@@ -1,6 +1,6 @@
 /* @file Move to an adjacent directory
  * @arg 0 {number} - Direction of move. "0":previous | "1":next
- * @arg 1 {number} - Specifies the debounce time before discarding Stay-Mode
+ * @arg 1 {number} - Specify a debounce time greater than 1000(ms) to enable StayMode
  * @arg 2 {string} - Displays debug messages when "DEBUG" is specified
  */
 
@@ -9,43 +9,47 @@ import {validArgs} from '@ppmdev/modules/argument.ts';
 import {tmp, useLanguage} from '@ppmdev/modules/data.ts';
 import {isError} from '@ppmdev/modules/guard.ts';
 import {readLines} from '@ppmdev/modules/io.ts';
-import {atDebounce} from '@ppmdev/modules/staymode.ts';
+import {pathSelf} from '@ppmdev/modules/path.ts';
+import {atDebounce, getStaymodeId} from '@ppmdev/modules/staymode.ts';
 import type {NlCodes} from '@ppmdev/modules/types.ts';
 import {type PathDetail, type SortDetail, core} from './mod/core.ts';
 import {langMoveDirectory} from './mod/language.ts';
 
 const STAYMODE_ID = 80140;
-const MSG = {root: '<<root>>', top: '<top>', bottom: '<bottom>'};
+const MSG = {ROOT: '<<root>>', TOP: '<top>', BOTTOM: '<bottom>'};
 const lang = langMoveDirectory[useLanguage()];
+const {scriptName} = pathSelf();
 
 type PathData = {lines: string[]; nl: NlCodes};
-let cache = {wd: '', ext: '', data: {} as PathData};
+const cache = {wd: '', ext: '', debounce: '0', isStaymode: false, isDebug: false, data: {} as PathData};
 
 const main = () => {
   const [direction, debounce, debugMode] = validArgs();
-  const isStaymode = hasDebounceTime(debounce);
+  cache.isStaymode = hasDebounceTime(debounce);
+  cache.isDebug = debugMode === 'DEBUG';
 
-  if (isStaymode) {
-    PPx.StayMode = STAYMODE_ID;
-    debugMode === 'DEBUG' && PPx.linemessage(`[DEBUG] start ${STAYMODE_ID}`);
-    atDebounce.hold(debounce, debugMode);
+  if (cache.isStaymode) {
+    const instance = getStaymodeId(scriptName) || STAYMODE_ID;
+    PPx.StayMode = instance;
+    cache.debounce = debounce;
+    debugMsg('linemessage', `start ${instance}`);
+    atDebounce.hold(instance, debugMode);
   }
 
-  ppx_resume(direction, '0', isStaymode);
+  ppx_resume(direction, debounce);
 };
 
-const ppx_finally = (): void => PPx.Echo('[WARN] instance remain moveDirectory.stay.js');
-const ppx_resume = (direction = '1', debounce = '5000', staymode = true): void => {
-  const sort = core.sortDetail(Number(direction), MSG.top, MSG.bottom);
+const ppx_resume = (direction = '1', debounce: string): void => {
+  const sort = core.sortDetail(Number(direction), MSG.TOP, MSG.BOTTOM);
   const [pwd, namespace] = getPwd();
   const target = core.pathDetail(pwd);
 
   if (!target) {
-    PPx.linemessage(`!"${MSG.root}`);
+    PPx.linemessage(`!"${MSG.ROOT}`);
     return;
   }
 
-  const items = candidates(target, sort, staymode);
+  const items = candidates(target, sort);
 
   if (typeof items === 'string') {
     PPx.linemessage(`!"${items}`);
@@ -64,11 +68,14 @@ const ppx_resume = (direction = '1', debounce = '5000', staymode = true): void =
     PPx.Execute(`*jumppath "${adjacentDir}"`);
   }
 
-  // init of debounce time
-  if (staymode) {
-    const propName = `ppm_staymode${STAYMODE_ID}`;
-    PPx.Execute(`*string u,${propName}=${debounce}`);
+  // update value of the debounce time
+  if (cache.isStaymode) {
+    cache.debounce = debounce;
   }
+};
+
+const ppx_finally = (): void => {
+  debugMsg('Echo', 'instance remain moveDirectory.stay.js');
 };
 
 /**
@@ -95,12 +102,12 @@ const getPwd = (): [string, string?] => {
  * Sort directory paths
  * @return Error message or sorted directory paths
  */
-const sortItems = (path: PathDetail, sort: SortDetail, mask: string, staymode: boolean): string | string[] => {
+const sortItems = (path: PathDetail, sort: SortDetail, mask: string): string | string[] => {
   let data: string | PathData;
 
-  if (staymode && cache.wd === path.wd && path.type < 61) {
+  if (cache.isStaymode && cache.wd === path.wd && path.type < 61) {
     data = cache.data;
-  } else if (staymode && cache.wd === path.wd && path.type >= 61 && cache.ext === path.ext) {
+  } else if (cache.isStaymode && cache.wd === path.wd && path.type >= 61 && cache.ext === path.ext) {
     data = cache.data;
   } else {
     const tempFile = tmp().file;
@@ -113,7 +120,9 @@ const sortItems = (path: PathDetail, sort: SortDetail, mask: string, staymode: b
       return data;
     }
 
-    cache = {wd: path.wd, ext: path.ext, data};
+    cache.wd = path.wd;
+    cache.ext = path.ext;
+    cache.data = data;
   }
 
   if (data.lines.length <= 1) {
@@ -127,7 +136,7 @@ const sortItems = (path: PathDetail, sort: SortDetail, mask: string, staymode: b
  * Get list of adjacent directories
  * @return Error message or sorted directory paths
  */
-const candidates = (path: PathDetail, sort: SortDetail, staymode: boolean): string | string[] => {
+const candidates = (path: PathDetail, sort: SortDetail): string | string[] => {
   switch (path.type) {
     case 0:
     // return 'DirectoryType: 0, unknown';
@@ -135,7 +144,7 @@ const candidates = (path: PathDetail, sort: SortDetail, staymode: boolean): stri
     // create a list in consideration of attributes
     case 1:
     case 3:
-      return sortItems(path, sort, 'a:d+s-', staymode);
+      return sortItems(path, sort, 'a:d+s-');
 
     // create a list in consideration of the extension
     case 4:
@@ -145,7 +154,7 @@ const candidates = (path: PathDetail, sort: SortDetail, staymode: boolean): stri
     case 64:
     case 96:
       path.path = path.path.slice(0, -1);
-      return sortItems(path, sort, path.ext, staymode);
+      return sortItems(path, sort, path.ext);
 
     default:
       return `DirectoryType: ${path.type}, ${lang.notSupport}`;
@@ -167,6 +176,15 @@ const getAdjacentPath = (num: number, items: string[], pwd: string, namespace?: 
   pwd = pwd.replace(rgx, '');
   namespace = namespace.replace(rgx, '');
   return path.replace(pwd, namespace);
+};
+
+/**
+ * Display a debug message
+ * @arg 0 {string} Specify PPx method
+ * @arg 1 {string} Specify debug message
+ */
+const debugMsg = (method: 'linemessage' | 'Echo', msg: string): void => {
+  cache.isDebug && PPx[method](`[DEBUG] ${msg}`);
 };
 
 main();
