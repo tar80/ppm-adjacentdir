@@ -85,7 +85,7 @@ const ppx_finally = (): void => {
 const hasDebounceTime = (debounce: string): boolean => {
   const n = Number(debounce);
 
-  return !Number.isNaN(n) && n >= 1000;
+  return !isNaN(n) && n >= 1000;
 };
 
 /**
